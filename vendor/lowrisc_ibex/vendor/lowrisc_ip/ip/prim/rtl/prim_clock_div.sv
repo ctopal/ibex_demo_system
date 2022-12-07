@@ -26,6 +26,8 @@ module prim_clock_div #(
   logic step_down_req;
   assign step_down_req = test_en_i ? '0 : step_down_req_i;
 
+  // Internally generated clocks cause IMPERFECTSCH warnings
+  /* verilator lint_off IMPERFECTSCH */
   logic clk_int;
 
   if (Divisor == 2) begin : gen_div2

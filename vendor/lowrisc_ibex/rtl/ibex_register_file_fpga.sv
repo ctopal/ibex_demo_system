@@ -14,6 +14,7 @@
 module ibex_register_file_fpga #(
     parameter bit                   RV32E             = 0,
     parameter int unsigned          DataWidth         = 32,
+  /* verilator lint_off UNUSED */
     parameter bit                   DummyInstructions = 0,
     parameter bit                   WrenCheck         = 0,
     parameter logic [DataWidth-1:0] WordZeroVal       = '0

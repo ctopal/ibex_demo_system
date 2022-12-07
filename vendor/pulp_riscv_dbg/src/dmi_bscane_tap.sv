@@ -11,6 +11,7 @@
 /// They replace the functionality of `dmi_jtag_tap.sv`. The file is
 /// pin-compatible so that by selecting the appropriate file for the target it
 /// can be transparently managed without relying on tick defines.
+/* verilator lint_off DECLFILENAME */
 module dmi_jtag_tap #(
   // Ignored, defined by the FPGA model.
   parameter int unsigned IrLength = 5,
