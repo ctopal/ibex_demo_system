@@ -8,7 +8,7 @@ filesets:
   files_rtl_demo_system:
     depend:
       - lowrisc:ibex:ibex_top
-      - lowrisc:ibex:rv_timer
+      - lowrisc:prim:clock_div
       - pulp:riscv:debug_module
     files:
       - rtl/system/ibex_demo_system.sv
@@ -20,7 +20,23 @@ filesets:
       - rtl/system/uart.sv
     file_type: systemVerilogSource
 
+  files_vivado:
+    depend:
+      - lowrisc:ibex:rv_timer
+
+  files_verilator:
+    depend:
+      - lowrisc:ibex:sim_shared
+      - lowrisc:dv_verilator:memutil_verilator
+      - lowrisc:dv_verilator:simutil_verilator
+      - lowrisc:dv_verilator:ibex_pcounts
+    files:
+      - ibex_demo_system.cc: { file_type: cppSource }
+      - ibex_demo_system.h:  { file_type: cppSource, is_include_file: true}
+
 targets:
   default:
     filesets:
+      - tool_verilator ? (files_verilator)
+      - tool_vivado ? (files_vivado)
       - files_rtl_demo_system
