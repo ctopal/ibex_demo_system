@@ -35,17 +35,34 @@ module spi_host #(
   logic [7:0] current_byte_q, current_byte_d, recieved_byte_d, recieved_byte_q;
 
   // 50Mhz sys clock divided into 25MHz SPI clock
-  logic clk_spi;
+  logic clk_spi, clk_fast_spi;
   prim_clock_div #(
     .Divisor(Divisor)
-  ) u_spi_div (
+  ) u_spi_fast_div (
     .clk_i          (clk_i),
+    .rst_ni         (1'b1),
+    .step_down_req_i('0),
+    .step_down_ack_o(),
+    .test_en_i      ('0),
+    .clk_o          (clk_fast_spi)
+  );
+
+  prim_clock_div #(
+    .Divisor(2)
+  ) u_spi_div (
+    .clk_i          (clk_fast_spi),
     .rst_ni         (1'b1),
     .step_down_req_i('0),
     .step_down_ack_o(),
     .test_en_i      ('0),
     .clk_o          (clk_spi)
   );
+
+  // Use faster clock to catch the negedge of the slower clock
+  logic sck_negedge_active;
+  always_ff @(posedge clk_fast_spi) begin
+    sck_negedge_active <= ~sck_negedge_active;
+  end
 
   always_comb begin
     spi_tx_o         = 1'b0;
@@ -87,9 +104,6 @@ module spi_host #(
     endcase
   end
 
-  // In order to prevent racing conditions, both received byte and current transmitted
-  // byte gets set in opposite active blocks. This ensures that spi_tx output will have
-  // a stable signal on the rising edge.
   generate
     // If CPHA is HIGH, incoming data will be sampled on the falling edge while outgoing
     // data will get shifted out on the rising edge.
@@ -105,13 +119,15 @@ module spi_host #(
           recieved_byte_q <= recieved_byte_d;
         end
       end
-      always_ff @(negedge clk_spi or negedge rst_ni) begin : data_sample_in
+      always_ff @(posedge clk_fast_spi or negedge rst_ni) begin : data_sample_in
         if (!rst_ni) begin
           current_byte_q <= '0;
-        end else begin
+        end else if (sck_negedge_active) begin
           if (state_q == SEND) begin
             recieved_byte_d <= {recieved_byte_q[6:0], spi_rx_i};
           end
+          // Change the current byte on a "negedge" to ensure transmitted data gets
+          // filled before the rising edge of the SCK
           current_byte_q <= current_byte_d;
         end
       end
@@ -123,18 +139,20 @@ module spi_host #(
         if (!rst_ni) begin
           current_byte_q <= '0;
         end else begin
+          // Change the current byte on a "posedge" to ensure transmitted data gets
+          // filled before the falling edge of the SCK
           current_byte_q <= current_byte_d;
         end
         if (state_q == SEND) begin
           recieved_byte_d <= {recieved_byte_q[6:0], spi_rx_i};
         end
       end
-      always_ff @(negedge clk_spi or negedge rst_ni) begin : data_shift_out
+      always_ff @(posedge clk_fast_spi or negedge rst_ni) begin : data_shift_out
         if (!rst_ni) begin
           state_q <= IDLE;
           recieved_byte_q <= '0;
           bit_counter_q <= '0;
-        end else begin
+        end else if (sck_negedge_active) begin
           bit_counter_q <= bit_counter_d;
           recieved_byte_q <= recieved_byte_d;
           state_q <= state_d;
