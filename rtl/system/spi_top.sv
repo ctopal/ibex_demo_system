@@ -39,7 +39,9 @@ module spi_top #(
   logic        read_status_q, read_status_d;
 
   // CTRL register bits
-  logic [3:0] spi_ctrl_d, spi_ctrl_we;
+  logic [3:0] spi_ctrl_d;
+  logic spi_ctrl_we;
+
   assign spi_ctrl_we = device_req_i & device_we_i & (reg_addr == SPI_CTRL_REG);
   assign spi_ctrl_d = device_be_i[0] ? device_wdata_i[3:0] : spi_ctrl_o;
   // Edge detection for popping FIFO elements.

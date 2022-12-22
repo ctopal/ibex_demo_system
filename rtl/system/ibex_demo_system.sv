@@ -84,7 +84,7 @@ module ibex_demo_system #(
     DbgDev
   } bus_device_e;
 
-  localparam int NrDevices = DBG ? 7 : 6;
+  localparam int NrDevices = DBG ? 8 : 7;
   localparam int NrHosts = DBG ? 3 : 2;
 
   // interrupts
@@ -404,6 +404,9 @@ module ibex_demo_system #(
       .rvalid_o  (device_rvalid[SimCtrl]),
       .rdata_o   (device_rdata[SimCtrl])
     );
+  `else
+    assign device_rvalid[SimCtrl] = '0;
+    assign device_rdata[SimCtrl] = '0;
   `endif
 
   timer #(
