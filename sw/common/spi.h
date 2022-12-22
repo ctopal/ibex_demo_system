@@ -7,9 +7,16 @@
 
 #define SPI_TX_REG 0
 #define SPI_STATUS_REG 4
+#define SPI_CTRL_REG 8
 
 #define SPI_STATUS_TX_FULL 1 << 0
 #define SPI_STATUS_TX_EMPTY 1 << 1
+
+#define SPI_CTRL_DC  1 << 0
+#define SPI_CTRL_CS  1 << 1
+#define SPI_CTRL_RST 1 << 2
+#define SPI_CTRL_BL  1 << 3
+
 #define SPI_FROM_BASE_ADDR(addr)((spi_reg_t*)(addr))
 
 typedef struct spi_reg{

@@ -15,14 +15,14 @@
 // Constants.
 enum{
 // Pin out mapping.
-  LcdSclkPin = 0,
+  LcdDcPin  ,
+  LcdCsPin  ,
+  LcdRstPin ,
+  LcdBlPin  ,
+  LcdSclkPin,
   LcdMosiPin,
-  LcdDcPin = 0,
-  LcdCsPin ,
-  LcdRstPin,
-  LcdBlPin,
   // Spi clock rate.
-  SpiSpeedHz = 5 * 100 * 1000,
+  SpiSpeedHz = 10 * 100 * 1000,
 };
 
 // Local functions declaration.
@@ -46,18 +46,18 @@ static Buttons_t scan_buttons(uint32_t timeout);
 
 int main(void) {
   // Set the initial state of the LCD control pins.
-  set_output_bit(GPIO0, LcdDcPin, 0x0);
-  set_output_bit(GPIO0, LcdBlPin, 0x1);
-  set_output_bit(GPIO0, LcdCsPin, 0x0);
+  set_output_bit(SPI0_CTRL, LcdDcPin, 0x0);
+  set_output_bit(SPI0_CTRL, LcdBlPin, 0x1);
+  set_output_bit(SPI0_CTRL, LcdCsPin, 0x0);
 
   // Init spi driver.
   spi_t spi;
   spi_init(&spi, DEFAULT_SPI, SpiSpeedHz);
 
   // Reset LCD.
-  set_output_bit(GPIO0, LcdRstPin, 0x0);
+  set_output_bit(SPI0_CTRL, LcdRstPin, 0x0);
   timer_delay(150);
-  set_output_bit(GPIO0, LcdRstPin, 0x1);
+  set_output_bit(SPI0_CTRL, LcdRstPin, 0x1);
 
   // Init LCD driver and set the SPI driver.
   St7735Context lcd;
@@ -83,7 +83,7 @@ int main(void) {
   lcd_st7735_draw_rgb565(&lcd, (LCD_rectangle){.origin = {.x = (160 - 105)/2, .y = 5},
                                 .width = 105, .height = 80}, (uint8_t*)lowrisc_logo_105x80);
   lcd_println(&lcd, "Booting...", alined_center, 7);
-  timer_delay(1000); 
+  timer_delay(1000);
 
   do {
     lcd_st7735_clean(&lcd);
@@ -122,10 +122,10 @@ int main(void) {
 
 static void fractal_test(St7735Context *lcd){
     fractal_bifurcation(lcd);
-    timer_delay(2000); 
+    timer_delay(2000);
 
     fractal_mandelbrot(lcd, true);
-    timer_delay(5000); 
+    timer_delay(5000);
 }
 
 
@@ -139,7 +139,7 @@ static void led_test(St7735Context *lcd){
 
 static Buttons_t scan_buttons(uint32_t timeout){
   //TODO
-  timer_delay(timeout); 
+  timer_delay(timeout);
   return BTN1;
 }
 
@@ -152,8 +152,8 @@ static uint32_t spi_write(void *handle, uint8_t *data, size_t len){
 }
 
 static uint32_t gpio_write(void *handle, bool cs, bool dc){
-  set_output_bit(GPIO0, LcdDcPin, dc);
-  set_output_bit(GPIO0, LcdCsPin, cs);
+  set_output_bit(SPI0_CTRL, LcdDcPin, dc);
+  set_output_bit(SPI0_CTRL, LcdCsPin, cs);
   return 0;
 }
 
