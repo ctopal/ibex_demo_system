@@ -5,9 +5,9 @@
 #ifndef SPI_H__
 #define SPI_H__
 
-#define SPI_TX_REG 0
-#define SPI_STATUS_REG 4
-#define SPI_CTRL_REG 8
+#define SPI_TX_REG 0x0
+#define SPI_STATUS_REG 0x4
+#define SPI_CTRL_REG 0x8
 
 #define SPI_STATUS_TX_FULL 1 << 0
 #define SPI_STATUS_TX_EMPTY 1 << 1

@@ -9,6 +9,7 @@
 
 #include "uart.h"
 #include "gpio.h"
+#include "spi.h"
 
 #define UART0_BASE 0x80001000
 #define DEFAULT_UART UART_FROM_BASE_ADDR(UART0_BASE)

@@ -159,7 +159,7 @@ static uint32_t gpio_write(void *handle, bool cs, bool dc){
 
 static void timer_delay(uint32_t ms){
   while(ms--){
-    timer_delay_micro(1000);
+    timer_delay_micro(1);
   }
   return;
   uint32_t timeout = get_elapsed_time() + ms;
