@@ -26,7 +26,8 @@ module ibex_demo_system #(
   output logic                uart_tx_o,
   input  logic                spi_rx_i,
   output logic                spi_tx_o,
-  output logic                spi_sck_o
+  output logic                spi_sck_o,
+  output logic [3:0]          spi_ctrl_o
 );
   localparam logic [31:0] MEM_SIZE     = 64 * 1024; // 64 KiB
   localparam logic [31:0] MEM_START    = 32'h00100000;
@@ -384,7 +385,7 @@ module ibex_demo_system #(
     .spi_rx_i(spi_rx_i), // Data received from SPI device
     .spi_tx_o(spi_tx_o), // Data transmitted to SPI device
     .sck_o(spi_sck_o), // Serial clock pin
-
+    .spi_ctrl_o(spi_ctrl_o), // D/C and CS controlled by software
     .byte_data_o() // unused
   );
 

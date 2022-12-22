@@ -21,21 +21,27 @@ module spi_top #(
     output logic        device_rvalid_o,
     output logic [31:0] device_rdata_o,
 
-    input  logic spi_rx_i,
-    output logic spi_tx_o,
-    output logic sck_o,
+    input  logic       spi_rx_i,
+    output logic       spi_tx_o,
+    output logic       sck_o,
+    output logic [3:0] spi_ctrl_o,
 
     output logic [7:0] byte_data_o
   );
 
   localparam logic [11:0] SPI_TX_REG = 12'h0;
   localparam logic [11:0] SPI_STATUS_REG = 12'h4;
+  localparam logic [11:0] SPI_CTRL_REG = 12'h8;
 
   logic [11:0] reg_addr;
 
   // Status register read enable
   logic        read_status_q, read_status_d;
 
+  // CTRL register bits
+  logic [3:0] spi_ctrl_d, spi_ctrl_we;
+  assign spi_ctrl_we = device_req_i & device_we_i & (reg_addr == SPI_CTRL_REG);
+  assign spi_ctrl_d = device_be_i[0] ? device_wdata_i[3:0] : spi_ctrl_o;
   // Edge detection for popping FIFO elements.
   logic next_tx_byte_d, next_tx_byte_q;
 
@@ -47,9 +53,13 @@ module spi_top #(
 
   always @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      next_tx_byte_q <= '0;
+      next_tx_byte_q  <= '0;
+      spi_ctrl_o      <= '0;
       device_rvalid_o <= '0;
     end else begin
+      if (spi_ctrl_we) begin
+        spi_ctrl_o <= spi_ctrl_d;
+      end
       next_tx_byte_q <= next_tx_byte_d;
       device_rvalid_o <= device_req_i;
     end

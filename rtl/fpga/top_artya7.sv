@@ -38,7 +38,7 @@ module top_artya7 (
   // Instantiating the Ibex Demo System.
   ibex_demo_system #(
     .GpiWidth(8),
-    .GpoWidth(8),
+    .GpoWidth(4),
     .PwmWidth(12),
     .SRAMInitFile(SRAMInitFile)
   ) u_ibex_demo_system (
@@ -48,13 +48,14 @@ module top_artya7 (
     .gp_i({SW, BTN}),
 
     //output
-    .gp_o({LED, DISP_CTRL}),
+    .gp_o(LED),
     .pwm_o(RGB_LED),
-    .uart_tx_o(UART_TX)
+    .uart_tx_o(UART_TX),
 
     .spi_rx_i(SPI_RX),
     .spi_tx_o(SPI_TX),
-    .spi_sck_o(SPI_SCK)
+    .spi_sck_o(SPI_SCK),
+    .spi_ctrl_o(DISP_CTRL)
   );
 
 endmodule
